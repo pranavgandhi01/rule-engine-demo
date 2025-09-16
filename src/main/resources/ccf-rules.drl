@@ -1,0 +1,65 @@
+package rules
+
+import com.example.GenericDataRecord
+
+rule "Undrawn"
+    salience 100
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() <= 0)
+    then
+        $record.setResult("DRWN");
+end
+
+rule "Recourse"
+    salience 90
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() > 0,
+                                  getField("RECOURSE_MTG_CD") == "Y")
+    then
+        $record.setResult("RCRS - 100%");
+end
+
+rule "CB DUS"
+    salience 80
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() > 0,
+                                  getField("RECOURSE_MTG_CD") != "Y",
+                                  getField("RETAIL_SUB_PRODUCT") == "CIB Delegated Underwriting And Services")
+    then
+        $record.setResult("DUS - 100%");
+end
+
+rule "Unconditionally cancellable"
+    salience 70
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() > 0,
+                                  getField("RECOURSE_MTG_CD") != "Y",
+                                  getField("RETAIL_SUB_PRODUCT") != "CIB Delegated Underwriting And Services",
+                                  getField("NOND_CNCL_IN") == "Y")
+    then
+        $record.setResult("UCC - 0%");
+end
+
+rule "Original maturity one year or less"
+    salience 60
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() > 0,
+                                  getField("RECOURSE_MTG_CD") != "Y",
+                                  getField("RETAIL_SUB_PRODUCT") != "CIB Delegated Underwriting And Services",
+                                  getField("NOND_CNCL_IN") != "Y",
+                                  getField("TOT_ORGN_TERM_CN") != null && ((Number)getField("TOT_ORGN_TERM_CN")).doubleValue() <= 12)
+    then
+        $record.setResult("1Y - 20%");
+end
+
+rule "Original maturity more than one year"
+    salience 50
+    when
+        $record : GenericDataRecord(getField("TOT_UDRWN_AM") != null && ((Number)getField("TOT_UDRWN_AM")).doubleValue() > 0,
+                                  getField("RECOURSE_MTG_CD") != "Y",
+                                  getField("RETAIL_SUB_PRODUCT") != "CIB Delegated Underwriting And Services",
+                                  getField("NOND_CNCL_IN") != "Y",
+                                  getField("TOT_ORGN_TERM_CN") != null && ((Number)getField("TOT_ORGN_TERM_CN")).doubleValue() > 12)
+    then
+        $record.setResult("1+Y - 50%");
+end

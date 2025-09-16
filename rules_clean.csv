@@ -1,0 +1,6 @@
+Rule_Group,Sequence,Rule_Name,Condition_to_Test,Rule_Inputs,Rule_Logic,Pass_Rule_Code,Pass_Action,Pass_Action_Value,Pass_Rule_Output,Fail_Rule_Code,Fail_Action,Fail_Action_Value,Fail_Rule_Output,Proxy_Logic,Proxy_Action
+CCF,1,Undrawn,Has undrawn commitment?,TOT_UDRWN_AM,TOT_UDRWN_AM > 0,N/A,Go to Rule,Recourse,N/A,DRWN,Exit,N/A,N/A,,
+CCF,2,Recourse,Is asset sold with recourse?,RECOURSE_MTG_CD,RECOURSE_MTG_CD = Y,RCRS,"Assign CCF, Exit",100%,BASEL3S_CR_CONV_FCTR_RT,N/A,Go to Rule,Recourse,N/A,,
+CCF,3,CB DUS,Is CB DUS Commitment?,RETAIL_SUB_PRODUCT,RETAIL_SUB_PRODUCT = 'CIB Delegated Underwriting And Services',DUS,"Assign CCF, Exit",100%,BASEL3S_CR_CONV_FCTR_RT,N/A,Go to Rule,CB DUS,N/A,,
+CCF,4,Unconditionally cancellable,Is unconditionably cancellable?,NOND_CNCL_IN,NOND_CNCL_IN = Y,UCC,"Assign CCF, Exit",0%,BASEL3S_CR_CONV_FCTR_RT,N/A,Go to Rule,Unconditionally cancellable,N/A,,
+CCF,5,Original maturity,Is original maturity one year or less?,"BASEL_PIPELINE_IN, OPEN_DT, MATURITY_DT, TOT_ORGN_TERM_CN, TOT_TERM_MO_CN","BASEL_PIPELINE_IN = 'Y' OR MATURITY_DT - OPEN_DT = 366 OR TOT_ORGN_TERM_CN <= 12 OR TOT_TERM_MO_CN <= 12",1Y,"Assign CCF, Exit",20%,BASEL3S_CR_CONV_FCTR_RT,1+Y,"Assign CCF, Exit",50%,BASEL3S_CR_CONV_FCTR_RT,,
